@@ -3421,19 +3421,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   logText: {fileID: 424430359}
   roomNameInputField: {fileID: 1971968122}
-  _lobbyPanel: {fileID: 1715878909}
+  lobbyPanel: {fileID: 1715878909}
   roomListContentT: {fileID: 432629105}
   roomItemList: []
   roomItemPrefab: {fileID: 5228934073572311158, guid: e115ddba6a31b3b41862f453c5aad2b1,
     type: 3}
-  _roomPanel: {fileID: 2017520735}
-  _playersListContentT: {fileID: 651995027}
-  _playerItemList: []
-  _playerItemPrefab: {fileID: 8793601275782218036, guid: 13c66e9c25d5e824e852b6aae4a0911c,
+  roomPanel: {fileID: 2017520735}
+  playersListContentT: {fileID: 651995027}
+  playerItemList: []
+  playerItemPrefab: {fileID: 8793601275782218036, guid: 13c66e9c25d5e824e852b6aae4a0911c,
     type: 3}
-  _RoomName: {fileID: 1912722732}
-  _startRoomButton: {fileID: 1719474624}
-  _readyStateText: {fileID: 653808214}
+  roomName: {fileID: 1912722732}
+  startRoomButton: {fileID: 1719474624}
+  readyStateText: {fileID: 653808214}
 --- !u!4 &1879897974
 Transform:
   m_ObjectHideFlags: 0
@@ -4021,10 +4021,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd5bb5a6ace9c1b46b839dfd668789af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _logText: {fileID: 424430359}
-  _usernameText: {fileID: 657535549}
-  _usernameInput: {fileID: 639759300}
-  _lobbyManager: {fileID: 1879897973}
+  logText: {fileID: 424430359}
+  usernameText: {fileID: 657535549}
+  usernameInput: {fileID: 639759300}
+  lobbyManager: {fileID: 1879897973}
 --- !u!4 &2141674589
 Transform:
   m_ObjectHideFlags: 0

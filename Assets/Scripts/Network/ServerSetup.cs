@@ -4,52 +4,50 @@ using UnityEngine;
 using UnityEngine.UI;
 using Photon.Pun;
 using Photon.Realtime;
+using UnityEngine.Serialization;
 
 public class ServerSetup : MonoBehaviourPunCallbacks {
 
-    [SerializeField] private Text _logText, _usernameText;
+    [SerializeField] private Text logText, usernameText;
 
-    [SerializeField] private InputField _usernameInput;
+    [SerializeField] private InputField usernameInput;
     
-    [SerializeField] private LobbyManager _lobbyManager;
-
-    private void Awake() {
-        
-    }
+    [SerializeField] private LobbyManager lobbyManager;
+    
 
     public void OnClickConnectToMainServer() {
     
-        if(_usernameInput.text.Length.Equals(0)) {
+        if(usernameInput.text.Length.Equals(0)) {
             
-            _logText.text = "Input Username";
+            logText.text = "Input Username";
             return;
         }
-        PhotonNetwork.NickName = _usernameInput.text.ToUpper();
+        PhotonNetwork.NickName = usernameInput.text.ToUpper();
         PhotonNetwork.GameVersion = "0.0.1";
         PhotonNetwork.AutomaticallySyncScene = true;
         PhotonNetwork.ConnectUsingSettings();
         
-        _logText.text = "Connecting...";
+        logText.text = "Connecting...";
     }
     
     public override void OnConnectedToMaster() {
 
-        _usernameText.text = PhotonNetwork.NickName;
+        usernameText.text = PhotonNetwork.NickName;
         base.OnConnected();
         PhotonNetwork.JoinLobby();
-        _lobbyManager._lobbyPanel.SetActive(true);
-        _logText.text = "Connected";
+        lobbyManager.lobbyPanel.SetActive(true);
+        logText.text = "Connected";
     }
 
     public override void OnDisconnected(DisconnectCause cause) {
 
-        _logText.text = "Disconnected From Server For " + cause.ToString();
+        logText.text = "Disconnected From Server For " + cause.ToString();
     }
 
     public override void OnJoinedLobby() {
         
         base.OnJoinedLobby();
-        _logText.text = "Joined Lobby";
+        logText.text = "Joined Lobby";
     }
 
     public override void OnLeftRoom() {

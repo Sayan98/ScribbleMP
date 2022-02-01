@@ -13,22 +13,22 @@ public class LobbyManager : MonoBehaviourPunCallbacks {
 
     private ExitGames.Client.Photon.Hashtable _properties;
     [SerializeField] private Text logText;
-    [FormerlySerializedAs("_roomNameInputField")] [SerializeField] private InputField roomNameInputField;
+    [SerializeField] private InputField roomNameInputField;
     
     [Header("Lobby Panel")]
-    public GameObject _lobbyPanel;
-    [FormerlySerializedAs("_roomListContentT")] [SerializeField] private Transform roomListContentT;
-    [FormerlySerializedAs("_roomItemList")] [SerializeField] private List<RoomListInfo> roomItemList = new List<RoomListInfo>();
-    [FormerlySerializedAs("_roomItemPrefab")] [SerializeField] private RoomListInfo roomItemPrefab; 
+    public GameObject lobbyPanel;
+    [SerializeField] private Transform roomListContentT;
+    [SerializeField] private List<RoomListInfo> roomItemList = new List<RoomListInfo>();
+    [SerializeField] private RoomListInfo roomItemPrefab; 
     
     [Header("Room Panel")]
-    public GameObject _roomPanel;
-    [SerializeField] private Transform _playersListContentT;
-    [SerializeField] private List<PlayerListInfo> _playerItemList = new List<PlayerListInfo>();
-    [SerializeField] private PlayerListInfo _playerItemPrefab;
-    [SerializeField] private Text _RoomName;
-    [SerializeField] private Button _startRoomButton;
-    [SerializeField] private Text _readyStateText;
+    public GameObject roomPanel;
+    [SerializeField] private Transform playersListContentT;
+    [SerializeField] private List<PlayerListInfo> playerItemList = new List<PlayerListInfo>();
+    [SerializeField] private PlayerListInfo playerItemPrefab;
+    [SerializeField] private Text roomName;
+    [SerializeField] private Button startRoomButton;
+    [SerializeField] private Text readyStateText;
     
     
     
@@ -45,30 +45,30 @@ public class LobbyManager : MonoBehaviourPunCallbacks {
             logText.text = "Enter Room Name";
             return;
         }
-        var options = new RoomOptions
-        {
+        var options = new RoomOptions {
+            
             MaxPlayers = 5,
             PlayerTtl = 1
         };
         PhotonNetwork.CreateRoom(roomNameInputField.text, options);
-        _startRoomButton.interactable = true;
+        startRoomButton.interactable = true;
         logText.text = "Creating Room....";
     }
 
 
     public override void OnCreateRoomFailed(short returnCode, string message) {
 
-        logText.text = "Creating Room Failed As " + message.ToString();
-        _startRoomButton.interactable = false;
+        logText.text = "Creating Room Failed As " + message;
+        startRoomButton.interactable = false;
     }
 
     public override void OnJoinedRoom() {
 
         logText.text = "Room Joined: " + PhotonNetwork.CurrentRoom.Name;
-        _roomPanel.SetActive(true);
-        _lobbyPanel.SetActive(false);
+        roomPanel.SetActive(true);
+        lobbyPanel.SetActive(false);
 
-        _RoomName.text = PhotonNetwork.CurrentRoom.Name;
+        roomName.text = PhotonNetwork.CurrentRoom.Name;
 
         _properties["s"] = true;
         PhotonNetwork.SetPlayerCustomProperties(_properties);
@@ -77,7 +77,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks {
     public override void OnJoinRoomFailed(short returnCode, string message) {
 
         logText.text = "Room Join Failed as " + message;
-        _startRoomButton.interactable = false;
+        startRoomButton.interactable = false;
     }
 
     public override void OnPlayerEnteredRoom(Player newPlayer) {
@@ -88,18 +88,18 @@ public class LobbyManager : MonoBehaviourPunCallbacks {
    
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps) {
         
-        var i = _playerItemList.FindIndex(x => x._nameText.text.Equals(targetPlayer.NickName));
+        var i = playerItemList.FindIndex(x => x.nameText.text.Equals(targetPlayer.NickName));
         if(!i.Equals(-1))
-            _playerItemList[i].ChangePlayerState(targetPlayer.CustomProperties["s"].Equals(true)? 0: 1);
+            playerItemList[i].ChangePlayerState(targetPlayer.CustomProperties["s"].Equals(true)? 0: 1);
 
-        foreach (KeyValuePair<int, Player>pair in PhotonNetwork.CurrentRoom.Players) {
+        foreach (var pair in PhotonNetwork.CurrentRoom.Players) {
             
-            var index = _playerItemList.FindIndex(x => x._nameText.text.Equals(pair.Value.NickName));
+            var index = playerItemList.FindIndex(x => x.nameText.text.Equals(pair.Value.NickName));
             if(index.Equals(-1)) {
 
-                var playerListInfo = Instantiate(_playerItemPrefab, _playersListContentT);
+                var playerListInfo = Instantiate(playerItemPrefab, playersListContentT);
                 playerListInfo.SetPlayerName(pair.Value);
-                _playerItemList.Add(playerListInfo);
+                playerItemList.Add(playerListInfo);
                 Debug.Log("OnPlayerPropertiesUpdate : " + pair.Value.NickName + "::" + pair.Value.CustomProperties["s"].ToString());
                 playerListInfo.ChangePlayerState(pair.Value.CustomProperties["s"].Equals(true)? 0: 1);
             }
@@ -109,11 +109,11 @@ public class LobbyManager : MonoBehaviourPunCallbacks {
     public override void OnPlayerLeftRoom(Player otherPlayer) {
 
         Debug.Log("player left " + otherPlayer.NickName);
-        var index = _playerItemList.FindIndex(x => x._nameText.text.Equals(otherPlayer.NickName));
+        var index = playerItemList.FindIndex(x => x.nameText.text.Equals(otherPlayer.NickName));
         if(!index.Equals(-1)) {
 
-            Destroy(_playerItemList[index].gameObject);
-           _playerItemList.RemoveAt(index);
+            Destroy(playerItemList[index].gameObject); 
+            playerItemList.RemoveAt(index);
         } 
     }
 
@@ -127,31 +127,38 @@ public class LobbyManager : MonoBehaviourPunCallbacks {
 
     public override void OnLeftRoom() {
 
-        for (var i = 0; i < roomItemList.Count; i++)
-            Destroy(roomItemList[i].gameObject);  
-        
-        for (var i = 0; i < _playerItemList.Count; i++)
-            Destroy(_playerItemList[i].gameObject);  
+        foreach (var t in roomItemList)
+            Destroy(t.gameObject);
+
+        foreach (var t in playerItemList)
+            Destroy(t.gameObject);
 
         roomItemList.Clear();
-        _playerItemList.Clear();
+        playerItemList.Clear();
         roomNameInputField.text = null;
 
-        _startRoomButton.interactable = false;
+        startRoomButton.interactable = false;
 
-        _roomPanel.SetActive(false);
-        _lobbyPanel.SetActive(true);
+        roomPanel.SetActive(false);
+        lobbyPanel.SetActive(true);
     }
     
 
     public void OnClickChangeState() {
-
-        foreach (KeyValuePair<int, Player>player in PhotonNetwork.CurrentRoom.Players) {
+        
+        /*foreach (var player in PhotonNetwork.CurrentRoom.Players.Where(player => player.Value.NickName.Equals(PhotonNetwork.NickName))) {
+        
+            _properties["s"] = !_properties["s"].Equals(true);
+            readyStateText.text = _properties["s"].Equals(true)? "Ready": "Idle";
+            Debug.Log(_properties["s"] + "::hh");
+            PhotonNetwork.SetPlayerCustomProperties(_properties);
+        }*/
+        foreach (var player in PhotonNetwork.CurrentRoom.Players) {
             
             if(player.Value.NickName.Equals(PhotonNetwork.NickName)) {
 
                 _properties["s"] = !_properties["s"].Equals(true);
-                _readyStateText.text = _properties["s"].Equals(true)? "Ready": "Idle";
+                readyStateText.text = _properties["s"].Equals(true)? "Ready": "Idle";
                 Debug.Log(_properties["s"] + "::hh");
                 PhotonNetwork.SetPlayerCustomProperties(_properties);
             }
@@ -170,7 +177,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks {
         base.OnRoomListUpdate(roomList);
         foreach (var info in roomList) {
             
-            var index = roomItemList.FindIndex(x => x._roomName.text.Equals(info.Name));
+            var index = roomItemList.FindIndex(x => x.roomName.text.Equals(info.Name));
             if(info.RemovedFromList || !info.IsVisible) { 
 
                 if(!index.Equals(-1)) {
@@ -191,9 +198,9 @@ public class LobbyManager : MonoBehaviourPunCallbacks {
     }
 
 
-    public void countroom() {
+    public void CountRoom() {
 
-        Debug.Log(PhotonNetwork.CountOfRooms + "rrom list");
+        Debug.Log(PhotonNetwork.CountOfRooms + "Rome list");
     }
     
 }

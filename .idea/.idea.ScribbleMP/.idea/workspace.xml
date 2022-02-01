@@ -20,7 +20,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="rider.run.widget.enabled.cache" value="false" />
-    <property name="settings.editor.selected.configurable" value="preferences.sourceCode.C#" />
+    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
   </component>
   <component name="RunManager" selected="Attach to Unity Editor.Attach to Unity Editor">
     <configuration name="Standalone Player" type="RunUnityExe" factoryName="Unity Executable">
@@ -61,6 +61,11 @@
       <option name="presentableId" value="Default" />
       <updated>1643135700336</updated>
       <workItem from="1643135700339" duration="944000" />
+      <workItem from="1643140881496" duration="4908000" />
+      <workItem from="1643305251986" duration="6091000" />
+      <workItem from="1643392984838" duration="7885000" />
+      <workItem from="1643565895326" duration="3940000" />
+      <workItem from="1643740626138" duration="4997000" />
     </task>
     <servers />
   </component>

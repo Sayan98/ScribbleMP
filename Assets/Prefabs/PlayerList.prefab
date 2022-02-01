@@ -54,12 +54,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb73ecf80e5988845b28f08e569a520e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _NameText: {fileID: 3598562822333280695}
-  _PointsText: {fileID: 3598562822635375105}
-  _RankText: {fileID: 3598562822729463088}
-  _PlayerListImage: {fileID: 3598562822202186146}
-  _WinColorImage: {fileID: 3598562822389843030}
-  _Score: 0
+  nameText: {fileID: 3598562822333280695}
+  pointsText: {fileID: 3598562822635375105}
+  rankText: {fileID: 3598562822729463088}
+  playerListImage: {fileID: 3598562822202186146}
+  winColorImage: {fileID: 3598562822389843030}
+  localPoints: 0
+  localRank: 0
+  localName: 
 --- !u!222 &3598562822202186141
 CanvasRenderer:
   m_ObjectHideFlags: 0

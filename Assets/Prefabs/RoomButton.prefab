@@ -130,7 +130,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49ce58a145d5ce44f894a3605f80153b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _roomName: {fileID: 5228934073169513615}
+  roomName: {fileID: 5228934073169513615}
 --- !u!222 &5228934073572311051
 CanvasRenderer:
   m_ObjectHideFlags: 0
