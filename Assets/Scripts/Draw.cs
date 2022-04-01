@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -18,36 +19,52 @@ public class Draw : MonoBehaviourPunCallbacks {
     [SerializeField] private LineRenderer brushPrefab;
     
     private LineRenderer _brush;
+
+    private EventData _eventData;
+    private List<object> _brushData;
     private Color _brushColor;
-    
-    private Vector3 _inputPos;
-    private object[] _brushData;
+    private Vector3 _brushInputPos;
 
     [SerializeField] private ControlCenter controlCenter;
-
 
     private void Awake() {
 
         drawing = false;
+        
+        _eventData = new EventData();
+        
+        _brushData = new List<object>();
+        
         _brushColor = new Color(1, 1, 1, 1);
-        _brushData = new object[3];
+        _brushInputPos = Vector2.zero;
     }
 
-    #region Brush
+    #region BrushInput
     public void OnMouseDown() {
 
         drawing = true;
-        _brush = Instantiate(brushPrefab, brushHolder);
-        _brush.startColor = _brush.endColor = _brushColor;
-        SetBrushPosition();
-        UpdateBrushPosition(true);
+        
+        _brushData.Clear();
+        _brushData.Add(true);
+        _brushData.Add((Vector2)mainCamera.ScreenToWorldPoint(Input.mousePosition));
+        
+        _brushData.Add(_brushColor.r);
+        _brushData.Add(_brushColor.g);
+        _brushData.Add(_brushColor.b);
+        
+        _eventData.Code = 1;
+        OnEvent(_eventData);
+        UpdateBrushPosition();
     }
 
     public void OnDrag() {
-
-        _brush.positionCount++;
-        SetBrushPosition();
-        UpdateBrushPosition(false);
+        
+        _brushData.Clear();
+        _brushData.Add(false);
+        _brushData.Add((Vector2)mainCamera.ScreenToWorldPoint(Input.mousePosition));
+        
+        OnEvent(_eventData);
+        UpdateBrushPosition();
     }
 
     public void OnMouseUp() {
@@ -57,25 +74,12 @@ public class Draw : MonoBehaviourPunCallbacks {
         if(PhotonNetwork.IsConnected)
             logText.text = "Ping: " + PhotonNetwork.NetworkingClient.LoadBalancingPeer.RoundTripTime;
     }
-
-    private void SetBrushPosition() {
-
-        _inputPos = mainCamera.ScreenToWorldPoint(Input.mousePosition);
-        _inputPos.z = -5;
-        _brush.SetPosition(_brush.positionCount - 1, _inputPos);
-    }
     #endregion
 
 
-    private void UpdateBrushPosition(bool newBrush) {
-    //CALLING EVENT
-
-        var positionCount = _brush.positionCount;
-        _brushData[0] = newBrush;
-        _brushData[1] = positionCount;
-        _brushData[2] = _brush.GetPosition(positionCount-1);
-
-        PhotonNetwork.RaiseEvent(0, _brushData, RaiseEventOptions.Default, SendOptions.SendUnreliable);
+    private void UpdateBrushPosition() {
+    //CALLING EVENT   
+        PhotonNetwork.RaiseEvent(_eventData.Code, _brushData, null, SendOptions.SendUnreliable);
     }
 
     public override void OnEnable() { PhotonNetwork.NetworkingClient.EventReceived += OnEvent; }
@@ -83,48 +87,53 @@ public class Draw : MonoBehaviourPunCallbacks {
 
     private void OnEvent(EventData eventData) { 
     //EVENT BRUSH
-    
         switch (eventData.Code) {
         
-            case 0:
-                Debug.Log("DRAWING");
-                _brushData = (object[])eventData.CustomData;
-                if((bool)_brushData[0])
-                    _brush = Instantiate(brushPrefab, brushHolder);
-                _brush.positionCount = (int)_brushData[1];
-                _brush.SetPosition(_brush.positionCount-1, (Vector3)_brushData[2]);
+            case 1: drawing = true;//TODO REMOVE
+
+                if (eventData.Sender > 0) { 
+                    
+                    _brushData.Clear();
+                    _brushData.AddRange((object[]) eventData.CustomData);
+                }
+
+                SetBrushPosition();
                 break;
-            case 1:
-                Debug.Log("CLEANING");
+            case 2: Debug.Log("CLEANING");//TODO REMOVE
+                
                 foreach (Transform child in brushHolder)
                     Destroy(child.gameObject);
                 break;
         }
     }
 
-    private void ClearScreen( ) {
-        
-        foreach (Transform child in brushHolder)
-            Destroy(child.gameObject);
+    private void SetBrushPosition() {
+
+        if(!(bool)_brushData[0]) 
+            _brush.positionCount++;
+        else {
+
+            _brush = Instantiate(brushPrefab, brushHolder);
+            _brush.startColor = _brush.endColor = new Color((float)_brushData[2], (float)_brushData[3], (float)_brushData[4], 1);
+            _brush.positionCount = 1;
+        }
+
+        _brushInputPos = (Vector2)_brushData[1];
+        _brushInputPos.z = -5;
+        _brush.SetPosition(_brush.positionCount - 1, _brushInputPos);
     }
 
-    public void ClearScreenCall() { 
-        
-        //ClearScreen();
-        var data = new EventData {
 
-            Code = 1
-        };
-        OnEvent(new EventData(){Code = 1});
-        //return;
-        var reo = RaiseEventOptions.Default;
-        reo.Receivers = ReceiverGroup.Others;
-        PhotonNetwork.RaiseEvent(1, null, reo, SendOptions.SendReliable);
+    public void ClearScreen() { 
+    //ERASER
+        _eventData.Code = 2;
+        OnEvent(_eventData);
+        PhotonNetwork.RaiseEvent(_eventData.Code, null, null, SendOptions.SendReliable);
     }
-
+    
     public void BrushAttribute(int i) {
-
+    //GET BRUSH COLOR
         _brushColor = controlCenter.colorPalette.colorPalette[i];
     }
-//SETUP EVENTDATA FOR LOCAL ALL ALSO, clear draw code
+
 }
